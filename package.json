@@ -1,6 +1,10 @@
 {
   "name": "google-translate-script",
   "packageManager": "yarn@3.3.0",
+  "scripts": {
+    "translate:doc": "node ./src/translateDoc.mjs",
+    "translate:word": "node ./src/translateWord.mjs"
+  },
   "dependencies": {
     "@google-cloud/translate": "^7.0.3",
     "hast-util-to-html": "^8.0.3",
