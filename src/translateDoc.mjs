@@ -22,10 +22,13 @@ import { fileURLToPath } from "url";
 import { default as glob } from 'glob';
 import { toHtml } from 'hast-util-to-html'
 import { TranslationServiceClient } from "@google-cloud/translate";
+import * as dotenv from "dotenv";
 
+dotenv.config();
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const mdFile = path.join(__dirname, '../docs/');
+const mdFile = path.join(__dirname, 'docs');
 const allZhFilesName = glob.sync("*.zh.md", { cwd: mdFile, realpath: true });
+
 
 /**
  * todo: keep your html
@@ -93,7 +96,7 @@ const mdToHtml = async (filePath) => {
  */
 export const getTranslatedText = async (originalHtml, mimeType = 'text/html') => {
   // 项目统一信息
-  const projectId = 'write your projectId';
+  const projectId = process.env.projectId; // 'write your projectId';
   const location = 'global';
   const targetLanguageCode = 'en';
   const translationClient = new TranslationServiceClient();
@@ -109,6 +112,7 @@ export const getTranslatedText = async (originalHtml, mimeType = 'text/html') =>
   try {
     // Run request
     const [ response ] = await translationClient.translateText(request);
+    console.log(response, 'response');
     for (const translation of response.translations) {
       result.push(translation.translatedText.replace(/ų/g, '\n'));
     }
@@ -201,6 +205,7 @@ const allAsyncTask = allZhFilesName.map(async (pathName) => {
     console.error(e)
   }
 });
+
 await Promise.all(allAsyncTask);
 console.log('error file path',  errorFilePath);
 process.exit(0);
