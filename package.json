@@ -1,6 +1,17 @@
 {
   "name": "@stone-lyl/google-translate-script",
   "packageManager": "yarn@3.3.0",
+  "version": "0.1.0",
+  "author": {
+    "name": "stone-lyl",
+    "email": "stone-lyl@outlook.com"
+  },
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stone-lyl/google-translate-script.git"
+  },
   "scripts": {
     "translate:doc": "node ./src/translateDoc.mjs",
     "translate:word": "node ./src/translateWord.mjs"
