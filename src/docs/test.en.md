@@ -1,10 +1,12 @@
-S2 uses [AntV/G](https://g.antv.vision/zh/docs/guide/introduce) as the graphics engine. Some graphics style configurations, such as `fill` attribute and `stroke` attribute of cells, and `fontFamily` and `fontSize` of drawing fonts, etc., are directly transparently transmitted to [AntV/G drawing attributes](https://g.antv.vision/zh/docs/api/shape/attrs) .
+------
+
+S2 uses [AntV/G](https://g.antv.vision/zh/docs/guide/introduce) as the graphics engine. Some graphics style configurations, such as the `fill` attribute and `stroke` attribute of cells, and the `fontFamily` and `fontSize` of drawing fonts, etc., are directly transparently transmitted to [AntV/G drawing attributes](https://g.antv.vision/zh/docs/api/shape/attrs) .
 
 Here is a brief introduction to the commonly used drawing properties of S2:
 
 ## Configure graphic styles
 
-| attribute name | type              | Functional description                                                                                                                                                         |
+| attribute name | Types of          | Functional description                                                                                                                                                         |
 | -------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | fill           | `string`          | The fill color of the graphics background supports \[gradient color configuration] (#configure gradient color), [texture configuration](#%E9%85%8D%E7%BD%AE%E7%BA%B9%E7%90%86) |
 | fill Opacity   | `number`          | Fill transparency of the graphic background                                                                                                                                    |
@@ -21,7 +23,7 @@ Here is a brief introduction to the commonly used drawing properties of S2:
 
 ## Configure Line Style
 
-| attribute name | type              | Functional description                                                                                                                                          |
+| attribute name | Types of          | Functional description                                                                                                                                          |
 | -------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | stroke         | `string`          | Line segment color, support \[gradient color configuration]\(#Configure gradient color), [texture configuration](#%E9%85%8D%E7%BD%AE%E7%BA%B9%E7%90%86)         |
 | lineWidth      | `number`          | line width                                                                                                                                                      |
@@ -35,14 +37,14 @@ Here is a brief introduction to the commonly used drawing properties of S2:
 
 ## Configure Text Style
 
-| attribute name | type                                                    | Functional description                                                                                                                                               |
+| attribute name | Types of                                                | Functional description                                                                                                                                               |
 | -------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | fontSize       | `number`                                                | font size                                                                                                                                                            |
 | fontFamily     | `string`                                                | text font                                                                                                                                                            |
 | fontWeight     | `number`                                                | font weight                                                                                                                                                          |
 | lineHeight     | `number`                                                | line height of text                                                                                                                                                  |
 | textAlign      | `center` \| `left` \| `right` \| `start` \| `end`       | Sets the alignment of the text content                                                                                                                               |
-| textBaseline   | `top` `hanging` `middle` \| `bottom` \| `alphabetic` \| | Sets the current text baseline to use when drawing text                                                                                                              |
+| textBaseline   | `top` \| `middle` \| `bottom` \| `alphabetic` `hanging` | Sets the current text baseline to use when drawing text                                                                                                              |
 | fill           | `string`                                                | Text fill color, support \[gradient color configuration]\(#Configure gradient color), [texture configuration](#%E9%85%8D%E7%BD%AE%E7%BA%B9%E7%90%86)                 |
 | fill Opacity   | `number`                                                | text fill transparency                                                                                                                                               |
 | stroke         | `string`                                                | Text stroke, support \[gradient color configuration]\(#Configure gradient color), [texture configuration](#%E9%85%8D%E7%BD%AE%E7%BA%B9%E7%90%86)                     |
@@ -83,7 +85,7 @@ Effect:
 <img data-mdast="html" alt="radial" src="https://gw.alipayobjects.com/zos/rmsportal/qnvmbtSBGxQlcuVOWkdu.png" width="600">
 
 *   `r` means to use radial gradient, that is, *radial gradient* , and the green font is a variable, which can be customized
-*   `x` , `y` , `r` values of the circle are all relative values, ranging from 0 to 1
+*   The `x` , `y` , and `r` values of the circle are all relative values, ranging from 0 to 1
 *   The color variable can be in the form of hexadecimal or rgb(a)
 
 Example:
