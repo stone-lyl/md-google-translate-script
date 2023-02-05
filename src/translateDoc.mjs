@@ -65,10 +65,8 @@ const mdToHtml = async (filePath, isKeepHtml) => {
   };
 
   const remarkRehypeSettings = isKeepHtml ? {
-    allowDangerousHtml: true,
-    handlers: {
-      code: getCode,
-      html: (h, node) => {
+    allowDangerousHtml: true, handlers: {
+      code: getCode, html: (h, node) => {
         node.value = addAttrIntoHtml(node.value);
         return mdDefaultHandlers.html(h, node);
       }
@@ -107,12 +105,9 @@ export const getTranslatedText = async (originalHtml, mimeType = 'text/html') =>
   const targetLanguageCode = 'en';
   const translationClient = new TranslationServiceClient();
   const request = {
-    parent: `projects/${projectId}/locations/${location}`,
-    // 因为 google translate 会忽略 \n ，所以这里需要把 \n 替换成 'ų'
-    contents: originalHtml.map(it => it.replace(/\n/g, 'ų')),
-    mimeType, // mime types: text/plain, text/html
-    sourceLanguageCode: 'zh',
-    targetLanguageCode,
+    parent: `projects/${projectId}/locations/${location}`, // 因为 google translate 会忽略 \n ，所以这里需要把 \n 替换成 'ų'
+    contents: originalHtml.map(it => it.replace(/\n/g, 'ų')), mimeType, // mime types: text/plain, text/html
+    sourceLanguageCode: 'zh', targetLanguageCode,
   };
   let result = [];
   try {
@@ -155,54 +150,50 @@ const HtmlToMd = async (html, writePath) => {
   // 当一个 html 标签，带有 data-mdast="html" 属性时，不会被转换成 md
   const getCustomHandler = (type, h, node) => {
     if (node.properties && node.properties.dataMdast === 'html') {
-      console.log(node.properties, 'node.properties');
       node.properties.dataMdast = undefined;
-      let value = toHtml(node, { space: 'html' });
+      let value = toHtml(node, { space: type });
       if (type === 'embed') {
         // embed 时，没有后闭合标签，所以需要手动添加
         value = value.replace(/zh.md/g, 'en.md') + '</embed>';
       }
       return h(node, 'html', value);
     }
+    if (type === 'pre') {
+      // 有点 hack 的方式，因为 translate API 会吞掉 code 中的空格。
+      // 所以，在翻译前，将 code 中的空格替换成 &nbsp;，翻译后，再替换回来
+      node.children[0].value = node.children[0].value === ' ' ? '' : node.children[0].value;
+      if (node.children[1]) {
+        node.children[1].children[0].value = node.children[1].children[0].value.replace(/&nbsp;/g, ' ');
+      }
+    }
     return defaultHandlers[type](h, node);
   };
 
-  const translateIgnore = [ 'img', 'playground', 'embed', 'table' ];
+  const translateIgnore = [ 'img', 'playground', 'embed', 'table', 'br' ];
   const customHandlers = {};
   translateIgnore.forEach(it => {
     customHandlers[it] = (h, node) => getCustomHandler(it, h, node);
   });
 
+  const handleProxy = new Proxy(defaultHandlers, {
+    get: (target, key) => {
+      return (h, node) => getCustomHandler(key, h, node);
+    }
+  });
+  console.log(handleProxy, 'handleProxy');
+
   const file = await unified()
     .use(rehypeParse)
     .use(remarkGfm)
     .use(rehypeRemark, {
-      handlers: {
-        pre: (h, node) => {
-          // 有点 hack 的方式，因为 translate API 会吞掉 code 中的空格。
-          // 所以，在翻译前，将 code 中的空格替换成 &nbsp;，翻译后，再替换回来
-          node.children[0].value = node.children[0].value === ' ' ? '' : node.children[0].value;
-          if (node.children[1]) {
-            node.children[1].children[0].value = node.children[1].children[0].value.replace(/&nbsp;/g, ' ');
-          } else {
-            debugger;
-          }
-          return defaultHandlers.pre(h, node);
-        },
-        ...customHandlers,
-      }
+      handlers: handleProxy,
     })
     .use(remarkStringify)
     .process(html)
 
   const content = getEnFileContent(writePath, file);
-  console.log('content', content);
 
-  fs.writeFileSync(
-    writePath,
-    content,
-    'utf8',
-  );
+  fs.writeFileSync(writePath, content, 'utf8',);
   console.log(`${writePath} written`);
 }
 
@@ -248,10 +239,10 @@ export const translateDoc = async (params) => {
     try {
       currentPathName = pathName;
       const html = await mdToHtml(pathName, params.isKeepHtml);
-      console.log(html, 'html');
+      // console.log(html, 'html');
 
       const htmlEn = await getTranslatedText([ html ]);
-      console.log(htmlEn, 'htmlEn');
+      // console.log(htmlEn, 'htmlEn');
 
       const writePath = pathName.replace('.zh', '.en');
       await HtmlToMd(htmlEn[0], writePath);
@@ -267,5 +258,10 @@ export const translateDoc = async (params) => {
   process.exit(0);
 
 }
+
+// translateDoc({
+//   fileName: 'docs', sourceSuffix: '.zh.md', isKeepHtml: true,
+//
+// });
 
 export default translateDoc;
