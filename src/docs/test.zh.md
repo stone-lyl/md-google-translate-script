@@ -19,30 +19,16 @@ S2 使用 [AntV/G](https://g.antv.vision/zh/docs/guide/introduce) 作为绘图�
 fill: `l(0) 0:#95F0FF 1:#3A9DBF`
 ```
 
+## html 标签效果：
 <embed type="video/quicktime" width="640" height="480">
 
-效果：
+<br>
 
-<br/>
 <br/>
 
 <Playground path='react-component/header/demo/default.tsx' rid='container' height='400'></playground>
 
 <img alt="preview" src="https://gw.alipayobjects.com/zos/antfincdn/gCsPi6N0x/c31897c4-80f4-4ae6-b562-0c19fedcd34e.png" width="400">
-
-## 配置线段样式
-
-| 属性名        | 类型              | 功能描述                                                                                                   |
-| ------------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
-| stroke        | `string`          | 线段颜色，支持 [渐变色配置](#配置渐变色） ，[纹理配置](#配置纹理)                                                |
-| lineWidth     | `number`          | 线段宽度                                                                                                   |
-| lineDash      | `[number,number]` | 线段虚线配置，第一个值为虚线每个分段的长度，第二个值为分段间隔的距离|
-| opacity       | `number`          | 线段透明度                                                                                                 |
-| shadowColor   | `string`          | 线段阴影颜色                                                                                               |
-| shadowBlur    | `number`          | 线段高斯模糊系数                                                                                           |
-| shadowOffsetX | `number`          | 设置阴影距线段的水平距离                                                                               |
-| shadowOffsetY | `number`          | 设置阴影距线段的垂直距离                                                                               |
-| cursor        | `string`          | 鼠标样式。同 [css 的鼠标样式](https://developer.mozilla.org/zh-CN/docs/Web/CSS/cursor)                                                               |
 
 ## 配置纹理
 
@@ -63,6 +49,12 @@ fill: `l(0) 0:#95F0FF 1:#3A9DBF`
 fill: 'p(a)https://gw.alipayobjects.com/mdn/rms_d314dd/afts/img/A*58XjQY1tO7gAAAAAAAAAAABkARQnAQ';
 ```
 
-效果：
+## 配置线段样式
 
-<img alt="pattern" src="https://gw.alipayobjects.com/zos/antfincdn/BCQ05%243O9/6e37b24f-57ad-4ce0-a035-4ec2cbd1b7c6.png" width="400">
+| 属性名        | 类型              | 功能描述                                                                                                   |
+| ------------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
+| stroke        | `string`          | 线段颜色，支持 [渐变色配置](#配置渐变色） ，[纹理配置](#配置纹理)                                                |
+| lineWidth     | `number`          | 线段宽度                                                                                                   |
+| lineDash      | `[number,number]` | 线段虚线配置，第一个值为虚线每个分段的长度，第二个值为分段间隔的距离|
+| opacity       | `number`          | 线段透明度                                                                                                 |
+| shadowColor   | `string`          | 线段阴影颜色                                                                                               |
