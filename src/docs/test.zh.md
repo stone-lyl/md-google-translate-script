@@ -20,13 +20,18 @@ fill: `l(0) 0:#95F0FF 1:#3A9DBF`
 ```
 
 ## html 标签效果：
+
 <embed type="video/quicktime" width="640" height="480">
+
+<embed src="@/docs/common/header.zh.md"></embed>
 
 <br>
 
 <br/>
 
-<Playground path='react-component/header/demo/default.tsx' rid='container' height='400'></playground>
+<Playground path='react-component/header/demo/default.tsx' rid='container' height='400'></Playground>
+
+<playground path='react-component/header/demo/default.tsx' rid='container' height='400'></playground>
 
 <img alt="preview" src="https://gw.alipayobjects.com/zos/antfincdn/gCsPi6N0x/c31897c4-80f4-4ae6-b562-0c19fedcd34e.png" width="400">
 

@@ -26,9 +26,6 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'process.env.GOOGLE_APPLICATION_CREDENTIALS');
-console.log(process.env.projectId)
-
 /**
  * todo: keep your html
  * <tag foo="bar"> -> <tag data-mdast="html" foo="bar">
@@ -113,7 +110,6 @@ export const getTranslatedText = async (originalHtml, mimeType = 'text/html') =>
   try {
     // Run request
     const [ response ] = await translationClient.translateText(request);
-    // console.log(response, 'response');
     for (const translation of response.translations) {
       result.push(translation.translatedText.replace(/ų/g, '\n'));
     }
@@ -146,16 +142,18 @@ function getEnFileContent(writePath, file) {
   return String(file);
 }
 
-const HtmlToMd = async (html, writePath) => {
+const HtmlToMd = async (html, writePath, params) => {
   // 当一个 html 标签，带有 data-mdast="html" 属性时，不会被转换成 md
   const getCustomHandler = (type, h, node) => {
+    if (params?.customHtmlCallBack) {
+      const customHtml = params.customHtmlCallBack(type, h, node);
+      if (customHtml) {
+        return customHtml;
+      }
+    }
     if (node.properties && node.properties.dataMdast === 'html') {
       node.properties.dataMdast = undefined;
       let value = toHtml(node, { space: type });
-      if (type === 'embed') {
-        // embed 时，没有后闭合标签，所以需要手动添加
-        value = value.replace(/zh.md/g, 'en.md') + '</embed>';
-      }
       return h(node, 'html', value);
     }
     if (type === 'pre') {
@@ -175,12 +173,17 @@ const HtmlToMd = async (html, writePath) => {
     customHandlers[it] = (h, node) => getCustomHandler(it, h, node);
   });
 
-  const handleProxy = new Proxy(defaultHandlers, {
+  const customHandler =
+    Object.assign(defaultHandlers, {
+      playground: (h, node) => getCustomHandler('playground', h, node),
+      Playground: (h, node) => getCustomHandler('Playground', h, node),
+    });
+  const handleProxy = new Proxy(customHandler, {
     get: (target, key) => {
       return (h, node) => getCustomHandler(key, h, node);
     }
   });
-  console.log(handleProxy, 'handleProxy');
+
 
   const file = await unified()
     .use(rehypeParse)
@@ -208,10 +211,8 @@ const errorFilePath = [];
  */
 function getAllFilesPath(params) {
   const { fileName, sourceSuffix = '.md' } = params;
-  console.log(params, 'params');
   const __dirname = params.dirname ?? dirname(fileURLToPath(import.meta.url));
   const mdPath = path.resolve(__dirname, fileName);
-  console.log(mdPath, 'mdPath');
   return glob.sync(`*${sourceSuffix}`, { cwd: mdPath, realpath: true });
 }
 
@@ -225,7 +226,8 @@ function getAllFilesPath(params) {
  *  projectInfo: {
  *    projectId: string;
  *    GOOGLE_APPLICATION_CREDENTIALS: string;
- *  }
+ *  };
+ *   customHtmlCallBack: (html: string) => string;
  *  } } params
  * @returns {Promise<void>}
  * @param params
@@ -239,13 +241,10 @@ export const translateDoc = async (params) => {
     try {
       currentPathName = pathName;
       const html = await mdToHtml(pathName, params.isKeepHtml);
-      // console.log(html, 'html');
-
       const htmlEn = await getTranslatedText([ html ]);
-      // console.log(htmlEn, 'htmlEn');
 
       const writePath = pathName.replace('.zh', '.en');
-      await HtmlToMd(htmlEn[0], writePath);
+      await HtmlToMd(htmlEn[0], writePath, { customHtmlCallBack: params.customHtmlCallBack });
     } catch (e) {
       console.error(pathName, 'error');
       errorFilePath.push(pathName);
@@ -261,6 +260,21 @@ export const translateDoc = async (params) => {
 
 // translateDoc({
 //   fileName: 'docs', sourceSuffix: '.zh.md', isKeepHtml: true,
+//   customHtmlCallBack: (type, h, node) => {
+//     if (type !== 'embed' && type !== 'playground') {
+//       return;
+//     }
+//     // embed 时，没有后闭合标签，所以需要手动添加
+//     if (node.properties && node.properties.dataMdast === 'html') {
+//       node.properties.dataMdast = undefined;
+//       let value = toHtml(node, { space: type });
+//       if (type === 'embed') {
+//         value = value.replace(/zh.md/g, 'en.md') + '</embed>';
+//       }
+//       return h(node, 'html', value);
+//     }
+//
+//   }
 //
 // });
 
