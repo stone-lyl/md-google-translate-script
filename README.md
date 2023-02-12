@@ -1,50 +1,128 @@
 # google-translate-script
+
+## 介绍
+
+使用 google-translate-api 将整篇 A 语言 Markdown 文件翻译成 B 语言的 Markdown。 A、B 语言为 google-translate-api 支持的翻译语言。
 This script will help you translate your entire project using the Google Translate API ！
 
-// 使用依赖包的方法进行使用
-input: 
-1. 给我需要翻译的文件路径。
-2. todo: 如果给我相对路径，我需要自行转换为绝对路径。 get 
-   1. eg: 
-```js
-const mdFile = path.join(__dirname, 'docs');
-const allZhFilesName = glob.sync("*.zh.md", { cwd: mdFile, realpath: true });
+## 安装
 
+```shell
+$ npm install @stone-lyl/google-translate-script -D
+$ yarn add @stone-lyl/google-translate-script -D
 ```
 
-output :
-1. 输出的文件目录和 + 翻译后的后缀名
-2. todo: 如果在指定的文件目录没有看到对应的文件，我需要自行创建文件。
-eg:
+## 使用
+
+> 本脚本前提，需在本地配置好 google-translate-api
+> 的使用环境，具体可参考 [google-translate-api](https://cloud.google.com/docs/authentication/application-default-credentials)
+
 ```js
-const outputDir = path.join(__dirname, 'docs');
-const outputFileName = '*.en.md';
+import translateDoc from "@stone-lyl/google-translate-script";
+import { fileURLToPath } from "url";
+import { toHtml } from 'hast-util-to-html'
+
+translateDoc({
+  fileName: fileName, // 绝对路径
+  dirname: fileURLToPath(import.meta.url),
+  sourceSuffix: '.zh.md', // 源文件后缀
+  targetSuffix: '.en.md', // 目标文件后缀
+  projectInfo: {
+    projectId: '<your project id>', // 替换成你的 Google-translate-API 的 projectId，也可将 projectId 存入本地环境变量中，脚本会去读取。
+  },
+  isKeepHtml: true, // 是否保留 html 标签
+  /**
+   * 对部分 HTML 标签进行特殊处理
+   * <embed src="docs/test.zh.md"/> 翻译后 <embed src="docs/test.en.md"/>
+   */
+  customHtmlCallBack: (type, h, node) => {
+    if (type !== 'embed') {
+      return;
+    }
+    // embed 时，没有后闭合标签，所以需要手动添加
+    if (node.properties && node.properties.dataMdast === 'html') {
+      node.properties.dataMdast = undefined;
+      let value = toHtml(node, { space: type });
+      if (type === 'embed') {
+        value = value.replace(/zh.md/g, 'en.md') + '</embed>';
+      }
+      return h(node, 'html', value);
+    }
+  }
+});
 ```
 
-config:
-1. 配置翻译的语言
-2. 默认为 zh -> en
-```js
-const source = 'zh';
-const target = 'en';
+## API 说明
+
+### fileName
+被翻译文件的文件名
+
+### dirname
+被翻译文件的文件夹路径
+
+### sourceSuffix
+被翻译文件的后缀名
+
+### targetSuffix
+翻译后文件的后缀名
+
+### projectInfo
+google-translate-api 的配置信息，具体可参考 [google-translate-api](https://cloud.google.com/docs/authentication/application-default-credentials)
+
+### isKeepHtml
+是否保留 Markdown 中原有的 html 标签
+e.g.:
+```md
+## 介绍
+
+<img src="https://im000.png" width="100" height="100" />
+```
+翻译后：
+```md
+## Introduction
+<img src="https://im000.png" width="100" height="100" />
 ```
 
-2. 原本的 html  是否保留
-3. 默认为 true
+### customHtmlCallBack
+对部分 HTML 标签进行特殊处理
+**options**
+- type 标签类型
+- h 处理特定元素的方法
+- node 需要转换的元素信息，[详情可查看](https://github.com/syntax-tree/hast#element)
+
+e.g.:
 ```js
-const isKeepHtml = true;
+customHtmlCallBack: (type, h, node) => {
+  if (type !== 'embed') {
+    return;
+  }
+  // embed 时，没有后闭合标签，所以需要手动添加
+  if (node.properties && node.properties.dataMdast === 'html') {
+    node.properties.dataMdast = undefined;
+    let value = toHtml(node, { space: type });
+    if (type === 'embed') {
+      value = value.replace(/zh.md/g, 'en.md') + '</embed>';
+    }
+    return h(node, 'html', value);
+  }
+}
+```
+翻译前：
+```md
+## 介绍
+<embed src="docs/test.zh.md"/>
+```
+翻译后：
+```md
+## Introduction
+<embed src="docs/test.en.md"/>
 ```
 
-3. todo: 翻译部分内容忽略，可不做翻译，使用正则进行匹配
+## TODO
+1. todo: 翻译部分内容忽略，可不做翻译，使用正则进行匹配
+
 ```js
-const ignoreReg = [/<code>[\s\S]*?<\/code>/g]; // 忽略 code 标签内的内容
+const ignoreReg = [ /<code>[\s\S]*?<\/code>/g ]; // 忽略 code 标签内的内容
 // true: 删除部分内容， false： 不翻译此内容
 ignoreConfig(ignoreReg, true);
-```
-
-4. todo: 特殊情况处理，我们公司的情况 
-```js
-<embed src="docs/test.zh.md" />
-// 翻译后
-<embed src="docs/test.en.md" />
 ```
