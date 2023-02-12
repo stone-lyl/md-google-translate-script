@@ -219,7 +219,7 @@ function getAllFilesPath(params) {
 /**
  * {{
  *  fileName: string;
- *  dirName: string; // 生成的文件夹名称
+ *  dirname: string; // 生成的文件夹名称
  *  targetSuffix: string; // 目标文件后缀 e.g. .en.md
  *  sourceSuffix: string; // 源文件后缀 e.g. .zh.md
  *  isKeepHtml: boolean; // 是否保留 html 标签
@@ -258,24 +258,24 @@ export const translateDoc = async (params) => {
 
 }
 
-// translateDoc({
-//   fileName: 'docs', sourceSuffix: '.zh.md', isKeepHtml: true,
-//   customHtmlCallBack: (type, h, node) => {
-//     if (type !== 'embed' && type !== 'playground') {
-//       return;
-//     }
-//     // embed 时，没有后闭合标签，所以需要手动添加
-//     if (node.properties && node.properties.dataMdast === 'html') {
-//       node.properties.dataMdast = undefined;
-//       let value = toHtml(node, { space: type });
-//       if (type === 'embed') {
-//         value = value.replace(/zh.md/g, 'en.md') + '</embed>';
-//       }
-//       return h(node, 'html', value);
-//     }
-//
-//   }
-//
-// });
+translateDoc({
+  fileName: 'docs', sourceSuffix: '.zh.md', isKeepHtml: true,
+  customHtmlCallBack: (type, h, node) => {
+    if (type !== 'embed' && type !== 'playground') {
+      return;
+    }
+    // embed 时，没有后闭合标签，所以需要手动添加
+    if (node.properties && node.properties.dataMdast === 'html') {
+      node.properties.dataMdast = undefined;
+      let value = toHtml(node, { space: type });
+      if (type === 'embed') {
+        value = value.replace(/zh.md/g, 'en.md') + '</embed>';
+      }
+      return h(node, 'html', value);
+    }
+
+  }
+
+});
 
 export default translateDoc;
